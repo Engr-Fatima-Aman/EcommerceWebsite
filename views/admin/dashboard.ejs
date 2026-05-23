@@ -1,0 +1,129 @@
+<%# Admin Dashboard %>
+
+<!-- Welcome strip -->
+<div class="welcome-strip">
+    <div>
+        <h4 class="mb-1">Welcome back, <%= user.name %></h4>
+        <p class="text-muted small mb-0">Here's what's happening with your store today.</p>
+    </div>
+    <div class="d-none d-md-block">
+        <i class="bi bi-stars text-gold display-5"></i>
+    </div>
+</div>
+
+<!-- Stat cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card stat-card-gold">
+            <div class="stat-icon"><i class="bi bi-gem"></i></div>
+            <div>
+                <div class="stat-label">Total Products</div>
+                <div class="stat-value"><%= stats.totalProducts %></div>
+                <div class="stat-foot text-muted small">in catalog</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card stat-card-burgundy">
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+            <div>
+                <div class="stat-label">Customers</div>
+                <div class="stat-value"><%= stats.totalCustomers %></div>
+                <div class="stat-foot text-muted small">registered users</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card stat-card-charcoal">
+            <div class="stat-icon"><i class="bi bi-bag-check"></i></div>
+            <div>
+                <div class="stat-label">Orders</div>
+                <div class="stat-value"><%= stats.totalOrders %></div>
+                <div class="stat-foot text-muted small">all time</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card stat-card-green">
+            <div class="stat-icon"><i class="bi bi-currency-rupee"></i></div>
+            <div>
+                <div class="stat-label">Revenue</div>
+                <div class="stat-value">Rs. <%= (stats.revenue || 0).toLocaleString('en-PK') %></div>
+                <div class="stat-foot text-muted small">total sales</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Status Breakdown -->
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="admin-card">
+            <h6 class="admin-card-title">Order Status Breakdown</h6>
+            <div class="row text-center g-3 mt-2">
+                <div class="col"><div class="status-tile"><div class="status-tile-count"><%= stats.placed || 0 %></div><div class="text-muted small">Placed</div></div></div>
+                <div class="col"><div class="status-tile"><div class="status-tile-count"><%= stats.processing || 0 %></div><div class="text-muted small">Processing</div></div></div>
+                <div class="col"><div class="status-tile"><div class="status-tile-count"><%= stats.shipped || 0 %></div><div class="text-muted small">Shipped</div></div></div>
+                <div class="col"><div class="status-tile"><div class="status-tile-count"><%= stats.delivered || 0 %></div><div class="text-muted small">Delivered</div></div></div>
+                <div class="col"><div class="status-tile"><div class="status-tile-count"><%= stats.cancelled || 0 %></div><div class="text-muted small">Cancelled</div></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders + Low Stock -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="admin-card-title mb-0">Recent Orders</h6>
+                <a href="/admin/orders" class="small link-gold">View All →</a>
+            </div>
+            <% if (recentOrders.length === 0) { %>
+                <p class="text-muted small mb-0">No orders yet.</p>
+            <% } else { %>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            <% recentOrders.forEach(o => { %>
+                                <tr>
+                                    <td>#<%= o.id %></td>
+                                    <td><%= o.user_name %></td>
+                                    <td>Rs. <%= o.total.toLocaleString('en-PK') %></td>
+                                    <td><span class="status-badge status-<%= o.status.toLowerCase() %>"><%= o.status %></span></td>
+                                    <td><a href="/admin/orders/<%= o.id %>" class="btn btn-sm btn-admin-outline">View</a></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-card">
+            <h6 class="admin-card-title">
+                <i class="bi bi-exclamation-triangle text-warning me-1"></i> Low Stock Alert
+            </h6>
+            <% if (lowStock.length === 0) { %>
+                <p class="text-muted small mb-0">All products are well stocked. 🎉</p>
+            <% } else { %>
+                <ul class="low-stock-list">
+                    <% lowStock.forEach(p => { %>
+                        <li>
+                            <div>
+                                <div class="fw-500"><%= p.name %></div>
+                                <div class="text-muted small"><%= p.type %></div>
+                            </div>
+                            <span class="badge bg-danger"><%= p.stock %> left</span>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } %>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,122 @@
+<%# Shop / Listings Page %>
+<section class="breadcrumb-section">
+    <div class="container">
+        <nav class="breadcrumb-trail">
+            <a href="/">Home</a> <span class="mx-2">/</span> <span>Shop</span>
+            <% if (filters.type) { %><span class="mx-2">/</span> <span><%= filters.type %>s</span><% } %>
+        </nav>
+        <h1 class="page-heading"><%= filters.type ? filters.type + 's' : 'All Jewellery' %></h1>
+        <% if (filters.search) { %>
+            <p class="text-muted">Search results for "<strong><%= filters.search %></strong>"</p>
+        <% } %>
+    </div>
+</section>
+
+<section class="section pt-4">
+    <div class="container">
+        <div class="row g-4">
+
+            <!-- ============ FILTER SIDEBAR ============ -->
+            <aside class="col-lg-3">
+                <form action="/shop" method="GET" class="filter-sidebar">
+                    <h5 class="filter-title">Refine</h5>
+
+                    <% if (filters.search) { %>
+                        <input type="hidden" name="search" value="<%= filters.search %>">
+                    <% } %>
+
+                    <div class="filter-group">
+                        <h6 class="filter-subtitle">Category</h6>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="radio" name="type" value="" <%= !filters.type ? 'checked' : '' %>>
+                                All Categories
+                            </label>
+                            <% types.forEach(t => { %>
+                                <label class="filter-option">
+                                    <input type="radio" name="type" value="<%= t %>" <%= filters.type === t ? 'checked' : '' %>>
+                                    <%= t %>s
+                                </label>
+                            <% }) %>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h6 class="filter-subtitle">Material</h6>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="radio" name="material" value="" <%= !filters.material ? 'checked' : '' %>>
+                                Any
+                            </label>
+                            <% materials.forEach(m => { %>
+                                <label class="filter-option">
+                                    <input type="radio" name="material" value="<%= m %>" <%= filters.material === m ? 'checked' : '' %>>
+                                    <%= m %>
+                                </label>
+                            <% }) %>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h6 class="filter-subtitle">Occasion</h6>
+                        <div class="filter-options">
+                            <% ['', 'Wedding', 'Party', 'Daily', 'Gift'].forEach(o => { %>
+                                <label class="filter-option">
+                                    <input type="radio" name="occasion" value="<%= o %>" <%= (filters.occasion || '') === o ? 'checked' : '' %>>
+                                    <%= o || 'Any' %>
+                                </label>
+                            <% }) %>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h6 class="filter-subtitle">Price Range (PKR)</h6>
+                        <div class="row g-2">
+                            <div class="col-6"><input type="number" name="minPrice" class="form-control form-control-sm" placeholder="Min" value="<%= filters.minPrice || '' %>"></div>
+                            <div class="col-6"><input type="number" name="maxPrice" class="form-control form-control-sm" placeholder="Max" value="<%= filters.maxPrice || '' %>"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold w-100">Apply Filters</button>
+                    <a href="/shop" class="btn btn-link w-100 mt-2 text-muted small">Clear All</a>
+                </form>
+            </aside>
+
+            <!-- ============ PRODUCT GRID ============ -->
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <span class="text-muted small"><%= products.length %> products found</span>
+                    <form action="/shop" method="GET" class="d-flex align-items-center gap-2">
+                        <% Object.keys(filters).forEach(k => { if (filters[k] && k !== 'sort') { %>
+                            <input type="hidden" name="<%= k %>" value="<%= filters[k] %>">
+                        <% }}) %>
+                        <label class="small text-muted mb-0">Sort:</label>
+                        <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="" <%= !filters.sort ? 'selected' : '' %>>Featured</option>
+                            <option value="price_asc" <%= filters.sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+                            <option value="price_desc" <%= filters.sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+                            <option value="latest" <%= filters.sort === 'latest' ? 'selected' : '' %>>Newest First</option>
+                        </select>
+                    </form>
+                </div>
+
+                <% if (products.length === 0) { %>
+                    <div class="empty-state">
+                        <i class="bi bi-search empty-icon"></i>
+                        <h4>No products match your filters</h4>
+                        <p class="text-muted">Try adjusting or clearing your filters to see more pieces.</p>
+                        <a href="/shop" class="btn btn-outline-gold">Clear Filters</a>
+                    </div>
+                <% } else { %>
+                    <div class="row g-4">
+                        <% products.forEach(p => { %>
+                            <div class="col-6 col-md-4">
+                                <%- include('../partials/product-card', { p }) %>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>

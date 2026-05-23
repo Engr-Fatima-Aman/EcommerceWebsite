@@ -1,0 +1,106 @@
+<%# Admin Product Form (Add / Edit) %>
+<% const isEdit = !!product; %>
+
+<a href="/admin/products" class="text-muted small text-decoration-none mb-3 d-inline-block">
+    <i class="bi bi-arrow-left me-1"></i> Back to Products
+</a>
+
+<form action="<%= isEdit ? '/admin/products/edit/' + product.id : '/admin/products/add' %>" method="POST" class="admin-form">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="admin-card">
+                <h6 class="admin-card-title"><%= isEdit ? 'Edit Product' : 'New Product' %></h6>
+
+                <div class="mb-3">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" name="name" class="form-control" required value="<%= isEdit ? product.name : '' %>">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3" required><%= isEdit ? product.description : '' %></textarea>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Type</label>
+                        <select name="type" class="form-select" required>
+                            <% ['Ring', 'Necklace', 'Earring', 'Bracelet'].forEach(t => { %>
+                                <option value="<%= t %>" <%= isEdit && product.type === t ? 'selected' : '' %>><%= t %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Category</label>
+                        <select name="category_id" class="form-select" required>
+                            <% categories.forEach(c => { %>
+                                <option value="<%= c.id %>" <%= isEdit && product.category_id === c.id ? 'selected' : '' %>><%= c.name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Material</label>
+                        <select name="material" class="form-select">
+                            <% ['Gold', 'Silver', 'Diamond', 'Platinum', 'Rose Gold', 'Pearl'].forEach(m => { %>
+                                <option value="<%= m %>" <%= isEdit && product.material === m ? 'selected' : '' %>><%= m %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Occasion</label>
+                        <select name="occasion" class="form-select">
+                            <% ['Wedding', 'Party', 'Daily', 'Gift', 'Formal'].forEach(o => { %>
+                                <option value="<%= o %>" <%= isEdit && product.occasion === o ? 'selected' : '' %>><%= o %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Size <small class="text-muted">(for rings)</small></label>
+                        <input type="text" name="size" class="form-control" placeholder="e.g. 7" value="<%= isEdit ? (product.size || '') : '' %>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Length <small class="text-muted">(necklace/bracelet)</small></label>
+                        <input type="text" name="length" class="form-control" placeholder="e.g. 18&quot;" value="<%= isEdit ? (product.length || '') : '' %>">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="admin-card">
+                <h6 class="admin-card-title">Pricing & Stock</h6>
+                <div class="mb-3">
+                    <label class="form-label">Price (PKR)</label>
+                    <input type="number" name="price" class="form-control" step="0.01" required value="<%= isEdit ? product.price : '' %>">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Stock</label>
+                    <input type="number" name="stock" class="form-control" min="0" required value="<%= isEdit ? product.stock : 10 %>">
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" name="featured" id="featured" class="form-check-input" <%= isEdit && product.featured ? 'checked' : '' %>>
+                    <label for="featured" class="form-check-label">Mark as Featured</label>
+                </div>
+            </div>
+
+            <div class="admin-card mt-4">
+                <h6 class="admin-card-title">Image</h6>
+                <div class="mb-3">
+                    <label class="form-label">Image Path</label>
+                    <input type="text" name="image" class="form-control" required value="<%= isEdit ? product.image : '/img/products/ring-1.svg' %>">
+                    <small class="text-muted">e.g. /img/products/ring-1.svg</small>
+                </div>
+                <% if (isEdit) { %>
+                    <img src="<%= product.image %>" alt="Preview" class="img-fluid border rounded">
+                <% } %>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-admin-gold btn-lg">
+                    <i class="bi bi-save me-1"></i> <%= isEdit ? 'Update Product' : 'Create Product' %>
+                </button>
+                <a href="/admin/products" class="btn btn-admin-outline">Cancel</a>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,46 @@
+<%# Customer Login %>
+<section class="auth-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-card">
+                    <div class="text-center mb-4">
+                        <img src="/img/logo.svg" alt="RIWAQ" height="50" class="mb-3">
+                        <h2 class="auth-title">Welcome Back</h2>
+                        <p class="text-muted">Sign in to your RIWAQ account</p>
+                        <div class="divider-ornament"></div>
+                    </div>
+
+                    <% if (error) { %>
+                        <div class="alert-elegant alert-danger">
+                            <i class="bi bi-exclamation-triangle me-1"></i> <%= error %>
+                        </div>
+                    <% } %>
+
+                    <form action="/login" method="POST" class="form-elegant">
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="you@email.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-gold w-100 btn-lg">Sign In</button>
+                    </form>
+
+                    <p class="text-center mt-4 mb-0 small">
+                        New here? <a href="/register" class="link-gold">Create an account</a>
+                    </p>
+
+                    <div class="demo-credentials mt-4">
+                        <small class="text-muted d-block text-center mb-1">— Demo Credentials —</small>
+                        <small class="text-muted d-block">📧 fatima@example.com</small>
+                        <small class="text-muted d-block">🔑 customer123</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,40 @@
+<%# Admin Orders List %>
+<div class="admin-card">
+    <p class="text-muted small mb-3">All orders placed across the store.</p>
+
+    <% if (orders.length === 0) { %>
+        <p class="text-muted text-center my-4 mb-0">No orders yet.</p>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Payment</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(o => { %>
+                        <tr>
+                            <td class="fw-600">#<%= o.id %></td>
+                            <td>
+                                <div><%= o.user_name %></div>
+                                <div class="text-muted small"><%= o.user_email %></div>
+                            </td>
+                            <td><%= new Date(o.created_at).toLocaleDateString('en-GB') %></td>
+                            <td><span class="small"><%= o.payment_method %></span></td>
+                            <td>Rs. <%= o.total.toLocaleString('en-PK') %></td>
+                            <td><span class="status-badge status-<%= o.status.toLowerCase() %>"><%= o.status %></span></td>
+                            <td><a href="/admin/orders/<%= o.id %>" class="btn btn-sm btn-admin-outline">Manage</a></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>

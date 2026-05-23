@@ -1,0 +1,33 @@
+<%# Admin Customers List %>
+<div class="admin-card">
+    <p class="text-muted small mb-3">All registered customer accounts.</p>
+
+    <% if (customers.length === 0) { %>
+        <p class="text-muted text-center my-4 mb-0">No customers registered yet.</p>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% customers.forEach(c => { %>
+                        <tr>
+                            <td>#<%= c.id %></td>
+                            <td class="fw-500"><%= c.name %></td>
+                            <td><%= c.email %></td>
+                            <td><%= c.phone || '—' %></td>
+                            <td><%= new Date(c.created_at).toLocaleDateString('en-GB') %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>

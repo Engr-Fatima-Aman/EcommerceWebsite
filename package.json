@@ -1,0 +1,27 @@
+{
+  "name": "riwaq",
+  "version": "1.0.0",
+  "description": "RIWAQ - A Design Patterns-Based E-Commerce Platform for Premium Jewellery",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --experimental-sqlite --no-warnings server.js",
+    "dev": "node --experimental-sqlite --no-warnings server.js",
+    "seed": "node --experimental-sqlite --no-warnings data/seed.js"
+  },
+  "author": "Fatima Aman, Nukhba Tehreem, Mariah Akber - Bahria University Karachi",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "ejs": "^3.1.10",
+    "express-session": "^1.18.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "express-ejs-layouts": "^2.5.1",
+    "nodemailer": "^6.9.13",
+    "dotenv": "^16.4.5",
+    "multer": "^1.4.5-lts.1"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

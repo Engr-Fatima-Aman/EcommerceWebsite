@@ -1,0 +1,139 @@
+<%# Cart Page %>
+<section class="breadcrumb-section">
+    <div class="container">
+        <nav class="breadcrumb-trail">
+            <a href="/">Home</a> <span class="mx-2">/</span> <span>Shopping Cart</span>
+        </nav>
+        <h1 class="page-heading">Shopping Cart</h1>
+    </div>
+</section>
+
+<section class="section pt-3">
+    <div class="container">
+        <% if (items.length === 0) { %>
+            <div class="empty-state">
+                <i class="bi bi-bag-x empty-icon"></i>
+                <h4>Your cart is empty</h4>
+                <p class="text-muted">Looks like you haven't added any pieces yet.</p>
+                <a href="/shop" class="btn btn-gold">Start Shopping</a>
+            </div>
+        <% } else { %>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="cart-table-wrap">
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% items.forEach((item, idx) => { %>
+                                    <tr>
+                                        <td style="width:90px;">
+                                            <img src="<%= item.product.image %>" alt="<%= item.product.name %>" class="cart-product-img">
+                                        </td>
+                                        <td>
+                                            <div class="cart-product-name"><%= item.product.name %></div>
+                                            <div class="cart-product-meta"><%= item.product.type %> · <%= item.product.material %></div>
+                                            <% if (item.decorations && item.decorations.length > 0) { %>
+                                                <div class="cart-customizations mt-2">
+                                                    <% item.decorations.forEach(d => { %>
+                                                        <span class="customization-badge">
+                                                            <i class="bi bi-stars me-1"></i><%= d.label %><% if (d.color) { %> (<%= d.color %>)<% } %><% if (d.text) { %>: "<%= d.text %>"<% } %>
+                                                            <span class="text-muted small">+Rs.<%= d.cost %></span>
+                                                        </span>
+                                                    <% }) %>
+                                                </div>
+                                            <% } %>
+                                        </td>
+                                        <td class="text-nowrap">Rs. <%= item.unitPrice.toLocaleString('en-PK') %></td>
+                                        <td>
+                                            <form action="/cart/update" method="POST" class="d-flex gap-2 align-items-center">
+                                                <input type="hidden" name="index" value="<%= idx %>">
+                                                <input type="number" name="quantity" value="<%= item.quantity %>" min="0" class="form-control form-control-sm" style="width:70px;">
+                                                <button type="submit" class="btn btn-sm btn-outline-gold"><i class="bi bi-arrow-clockwise"></i></button>
+                                            </form>
+                                        </td>
+                                        <td class="text-nowrap fw-600">Rs. <%= item.lineTotal.toLocaleString('en-PK') %></td>
+                                        <td>
+                                            <a href="/cart/remove/<%= idx %>" class="cart-remove" title="Remove"><i class="bi bi-x-lg"></i></a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Coupon Code -->
+                    <div class="coupon-box mt-4">
+                        <form action="/cart/coupon" method="POST" class="d-flex gap-2 align-items-end flex-wrap">
+                            <div class="flex-grow-1">
+                                <label class="form-label small text-muted mb-1">
+                                    Promo Code
+                                </label>
+                                <input type="text" name="coupon" class="form-control" placeholder="Try: EID10, WELCOME500, NEWYEAR20, BOGO" value="<%= coupon %>">
+                            </div>
+                            <button type="submit" class="btn btn-outline-gold">Apply</button>
+                        </form>
+                        <% if (discountInfo.applied && discountInfo.applied !== 'None' && discountInfo.discount > 0) { %>
+                            <div class="alert-elegant alert-success mt-3 mb-0">
+                                <i class="bi bi-check-circle me-1"></i>
+                                <strong><%= discountInfo.applied %></strong> applied — you saved Rs. <%= discountInfo.discount.toLocaleString('en-PK') %>
+                            </div>
+                        <% } else if (coupon) { %>
+                            <div class="alert-elegant alert-warning mt-3 mb-0">
+                                <i class="bi bi-exclamation-circle me-1"></i> Coupon code not recognized
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- ===== Summary ===== -->
+                <div class="col-lg-4">
+                    <div class="summary-box">
+                        <h5 class="summary-title">Order Summary</h5>
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>Rs. <%= subtotal.toLocaleString('en-PK') %></span>
+                        </div>
+                        <% if (discountInfo.discount > 0) { %>
+                            <div class="summary-row discount">
+                                <span>Discount (<%= discountInfo.applied %>)</span>
+                                <span>− Rs. <%= discountInfo.discount.toLocaleString('en-PK') %></span>
+                            </div>
+                        <% } %>
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <span><%= shipping === 0 ? 'FREE' : 'Rs. ' + shipping.toLocaleString('en-PK') %></span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (<%= Math.round(config.taxRate * 100) %>%)</span>
+                            <span>Rs. <%= tax.toLocaleString('en-PK') %></span>
+                        </div>
+                        <hr>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span>Rs. <%= total.toLocaleString('en-PK') %></span>
+                        </div>
+
+                        <% if (user) { %>
+                            <a href="/checkout" class="btn btn-gold w-100 btn-lg mt-3">
+                                Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        <% } else { %>
+                            <a href="/login" class="btn btn-gold w-100 btn-lg mt-3">
+                                Login to Checkout
+                            </a>
+                        <% } %>
+                        <a href="/shop" class="btn btn-link w-100 text-muted small mt-2">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</section>

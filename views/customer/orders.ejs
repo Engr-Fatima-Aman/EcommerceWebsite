@@ -1,0 +1,50 @@
+<%# My Orders History %>
+<section class="breadcrumb-section">
+    <div class="container">
+        <nav class="breadcrumb-trail">
+            <a href="/">Home</a> <span class="mx-2">/</span> <span>My Orders</span>
+        </nav>
+        <h1 class="page-heading">My Orders</h1>
+    </div>
+</section>
+
+<section class="section pt-3">
+    <div class="container">
+        <% if (orders.length === 0) { %>
+            <div class="empty-state">
+                <i class="bi bi-bag empty-icon"></i>
+                <h4>You haven't placed any orders yet</h4>
+                <p class="text-muted">When you do, they'll appear here.</p>
+                <a href="/shop" class="btn btn-gold">Start Shopping</a>
+            </div>
+        <% } else { %>
+            <div class="order-list">
+                <% orders.forEach(order => { %>
+                    <div class="order-card">
+                        <div class="row align-items-center g-3">
+                            <div class="col-md-3">
+                                <div class="order-label">Order Number</div>
+                                <div class="order-value">#<%= order.id %></div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="order-label">Date Placed</div>
+                                <div class="order-value"><%= new Date(order.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) %></div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="order-label">Total</div>
+                                <div class="order-value">Rs. <%= order.total.toLocaleString('en-PK') %></div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="order-label">Status</div>
+                                <span class="status-badge status-<%= order.status.toLowerCase() %>"><%= order.status %></span>
+                            </div>
+                            <div class="col-md-2 text-md-end">
+                                <a href="/orders/<%= order.id %>" class="btn btn-sm btn-outline-gold">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+    </div>
+</section>

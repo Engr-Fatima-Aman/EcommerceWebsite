@@ -1,0 +1,120 @@
+<%# Payment Pending — customer uploads payment proof %>
+<section class="breadcrumb-section">
+    <div class="container">
+        <nav class="breadcrumb-trail">
+            <a href="/">Home</a> <span class="mx-2">/</span>
+            <a href="/orders">My Orders</a> <span class="mx-2">/</span>
+            <span>Complete Payment</span>
+        </nav>
+        <h1 class="page-heading">Complete Your Payment</h1>
+        <p class="text-muted">Order <strong>#<%= order.id %></strong> · Total: <strong>Rs. <%= order.total.toLocaleString('en-PK') %></strong></p>
+    </div>
+</section>
+
+<section class="section pt-3">
+    <div class="container">
+
+        <% if (order.payment_status === 'submitted') { %>
+            <div class="alert-elegant alert-success">
+                <strong><i class="bi bi-clock-history me-1"></i> Payment proof submitted.</strong> Our team will verify it within 24 hours and email you a confirmation.
+            </div>
+        <% } else if (order.payment_status === 'verified') { %>
+            <div class="alert-elegant alert-success">
+                <strong><i class="bi bi-check-circle me-1"></i> Payment verified.</strong> Your order is being prepared for dispatch.
+            </div>
+        <% } else if (order.payment_status === 'rejected') { %>
+            <div class="alert-elegant alert-danger">
+                <strong><i class="bi bi-x-circle me-1"></i> Payment could not be verified.</strong> Please contact support or re-upload a clearer proof.
+            </div>
+        <% } %>
+
+        <div class="row g-4">
+            <!-- ===== Payment Details ===== -->
+            <div class="col-lg-7">
+                <div class="checkout-card">
+                    <h5 class="checkout-section-title"><span class="step-num">1</span> Send the Payment</h5>
+
+                    <% if (order.payment_method === 'Bank Transfer' || order.payment_method.toLowerCase().includes('bank')) { %>
+                        <div class="payment-detail-card">
+                            <h6><i class="bi bi-bank text-gold me-2"></i> Bank Transfer Details</h6>
+                            <div class="spec-row"><span class="spec-label">Bank</span><span class="spec-value"><%= paymentDetails.bank.name %></span></div>
+                            <div class="spec-row"><span class="spec-label">Account Title</span><span class="spec-value"><%= paymentDetails.bank.title %></span></div>
+                            <div class="spec-row"><span class="spec-label">Account #</span><span class="spec-value font-monospace"><%= paymentDetails.bank.account %></span></div>
+                            <div class="spec-row"><span class="spec-label">IBAN</span><span class="spec-value font-monospace"><%= paymentDetails.bank.iban %></span></div>
+                            <div class="spec-row"><span class="spec-label">Amount</span><span class="spec-value text-gold fw-bold">Rs. <%= order.total.toLocaleString('en-PK') %></span></div>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted small mb-3">Pay via either method, then upload screenshot below.</p>
+                        <div class="payment-detail-card">
+                            <h6><i class="bi bi-phone text-gold me-2"></i> JazzCash</h6>
+                            <div class="spec-row"><span class="spec-label">Number</span><span class="spec-value font-monospace"><%= paymentDetails.jazzcash.number %></span></div>
+                            <div class="spec-row"><span class="spec-label">Title</span><span class="spec-value"><%= paymentDetails.jazzcash.title %></span></div>
+                        </div>
+                        <div class="payment-detail-card mt-3">
+                            <h6><i class="bi bi-phone text-gold me-2"></i> EasyPaisa</h6>
+                            <div class="spec-row"><span class="spec-label">Number</span><span class="spec-value font-monospace"><%= paymentDetails.easypaisa.number %></span></div>
+                            <div class="spec-row"><span class="spec-label">Title</span><span class="spec-value"><%= paymentDetails.easypaisa.title %></span></div>
+                        </div>
+                        <div class="alert-elegant alert-warning mt-3">
+                            <i class="bi bi-info-circle me-1"></i> Send <strong>Rs. <%= order.total.toLocaleString('en-PK') %></strong> and include your order number <strong>#<%= order.id %></strong> in the message.
+                        </div>
+                    <% } %>
+                </div>
+
+                <div class="checkout-card mt-4">
+                    <h5 class="checkout-section-title"><span class="step-num">2</span> Upload Payment Proof</h5>
+                    <p class="text-muted small">Screenshot of the transaction (image or PDF, max 5 MB).</p>
+
+                    <% if (order.payment_proof && order.payment_status !== 'rejected') { %>
+                        <div class="current-proof mb-3">
+                            <div class="text-muted small mb-2">Currently uploaded:</div>
+                            <a href="<%= order.payment_proof %>" target="_blank" class="d-block">
+                                <% if (/\.pdf$/i.test(order.payment_proof)) { %>
+                                    <i class="bi bi-file-earmark-pdf"></i> View PDF
+                                <% } else { %>
+                                    <img src="<%= order.payment_proof %>" alt="Payment proof" style="max-width:240px;border:1px solid #e8dfd1;border-radius:6px;">
+                                <% } %>
+                            </a>
+                        </div>
+                    <% } %>
+
+                    <% if (order.payment_status !== 'verified') { %>
+                        <form action="/orders/<%= order.id %>/payment-proof" method="POST" enctype="multipart/form-data" class="form-elegant">
+                            <div class="mb-3">
+                                <input type="file" name="proof" class="form-control" accept="image/*,application/pdf" required>
+                            </div>
+                            <button type="submit" class="btn btn-gold">
+                                <i class="bi bi-cloud-upload me-1"></i>
+                                <%= order.payment_proof ? 'Re-upload Proof' : 'Upload Proof' %>
+                            </button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- ===== Order Summary ===== -->
+            <div class="col-lg-5">
+                <div class="summary-box sticky-summary">
+                    <h5 class="summary-title">Order #<%= order.id %></h5>
+                    <div class="summary-row"><span>Subtotal</span><span>Rs. <%= order.subtotal.toLocaleString('en-PK') %></span></div>
+                    <% if (order.discount > 0) { %>
+                        <div class="summary-row discount"><span>Discount</span><span>− Rs. <%= order.discount.toLocaleString('en-PK') %></span></div>
+                    <% } %>
+                    <div class="summary-row"><span>Shipping</span><span><%= order.shipping === 0 ? 'FREE' : 'Rs. ' + order.shipping.toLocaleString('en-PK') %></span></div>
+                    <div class="summary-row"><span>Tax</span><span>Rs. <%= order.tax.toLocaleString('en-PK') %></span></div>
+                    <hr>
+                    <div class="summary-row total"><span>Amount Due</span><span>Rs. <%= order.total.toLocaleString('en-PK') %></span></div>
+
+                    <div class="alert-elegant alert-warning mt-3 mb-0">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Your order is on hold until payment is verified. We aim to verify within 24 hours during business days.
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="/orders/<%= order.id %>" class="small text-muted">View full order details →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

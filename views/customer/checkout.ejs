@@ -1,0 +1,142 @@
+<%# Checkout Page %>
+<section class="breadcrumb-section">
+    <div class="container">
+        <nav class="breadcrumb-trail">
+            <a href="/">Home</a> <span class="mx-2">/</span>
+            <a href="/cart">Cart</a> <span class="mx-2">/</span>
+            <span>Checkout</span>
+        </nav>
+        <h1 class="page-heading">Checkout</h1>
+    </div>
+</section>
+
+<section class="section pt-3">
+    <div class="container">
+        <form action="/checkout" method="POST">
+            <div class="row g-4">
+
+                <!-- ===== Shipping + Payment ===== -->
+                <div class="col-lg-7">
+                    <div class="checkout-card">
+                        <h5 class="checkout-section-title"><span class="step-num">1</span> Shipping Details</h5>
+                        <div class="row g-3 form-elegant">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" value="<%= user.name %>" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" value="<%= user.email %>" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                <input type="tel" name="phone" class="form-control" placeholder="03XX XXXXXXX" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">City <span class="text-danger">*</span></label>
+                                <select name="city" class="form-select" required>
+                                    <option value="">— Select City —</option>
+                                    <option>Karachi</option>
+                                    <option>Lahore</option>
+                                    <option>Islamabad</option>
+                                    <option>Rawalpindi</option>
+                                    <option>Faisalabad</option>
+                                    <option>Multan</option>
+                                    <option>Peshawar</option>
+                                    <option>Quetta</option>
+                                    <option>Hyderabad</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Full Address <span class="text-danger">*</span></label>
+                                <textarea name="address" class="form-control" rows="3" placeholder="House #, Street, Area, Landmark" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Order Notes <small class="text-muted">(optional)</small></label>
+                                <textarea name="notes" class="form-control" rows="2" placeholder="Special instructions, gift message, delivery preferences..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checkout-card mt-4">
+                        <h5 class="checkout-section-title"><span class="step-num">2</span> Payment Method</h5>
+                        <p class="text-muted small mb-3 fst-italic">
+                            <i class="bi bi-info-circle me-1"></i> Each method is built by the <strong>Payment Factory</strong> pattern.
+                        </p>
+                        <div class="payment-methods">
+                            <% paymentMethods.forEach((m, i) => { %>
+                                <label class="payment-option">
+                                    <input type="radio" name="payment_method" value="<%= m.id %>" <%= i === 0 ? 'checked' : '' %> required>
+                                    <div class="payment-option-content">
+                                        <div class="payment-icon">
+                                            <% if (m.id === 'cod') { %><i class="bi bi-cash-stack"></i>
+                                            <% } else if (m.id === 'bank') { %><i class="bi bi-bank"></i>
+                                            <% } else if (m.id === 'wallet' || m.id === 'jazzcash' || m.id === 'easypaisa') { %><i class="bi bi-phone"></i>
+                                            <% } else { %><i class="bi bi-credit-card-2-front"></i><% } %>
+                                        </div>
+                                        <div>
+                                            <div class="payment-label"><%= m.label %></div>
+                                            <% if (m.description) { %><div class="payment-desc text-muted small"><%= m.description %></div><% } %>
+                                        </div>
+                                    </div>
+                                </label>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== Order Summary ===== -->
+                <div class="col-lg-5">
+                    <div class="summary-box sticky-summary">
+                        <h5 class="summary-title">Your Order (<%= items.length %> items)</h5>
+
+                        <div class="checkout-items">
+                            <% items.forEach(item => { %>
+                                <div class="checkout-item">
+                                    <img src="<%= item.product.image %>" alt="<%= item.product.name %>">
+                                    <div class="flex-grow-1">
+                                        <div class="checkout-item-name"><%= item.product.name %></div>
+                                        <div class="text-muted small">Qty: <%= item.quantity %><% if (item.decorations.length > 0) { %> · Customized<% } %></div>
+                                    </div>
+                                    <div class="text-end fw-600">Rs. <%= item.lineTotal.toLocaleString('en-PK') %></div>
+                                </div>
+                            <% }) %>
+                        </div>
+
+                        <hr>
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>Rs. <%= subtotal.toLocaleString('en-PK') %></span>
+                        </div>
+                        <% if (discountInfo.discount > 0) { %>
+                            <div class="summary-row discount">
+                                <span>Discount (<%= discountInfo.applied %>)</span>
+                                <span>− Rs. <%= discountInfo.discount.toLocaleString('en-PK') %></span>
+                            </div>
+                        <% } %>
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <span><%= shipping === 0 ? 'FREE' : 'Rs. ' + shipping.toLocaleString('en-PK') %></span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax</span>
+                            <span>Rs. <%= tax.toLocaleString('en-PK') %></span>
+                        </div>
+                        <hr>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span>Rs. <%= total.toLocaleString('en-PK') %></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-gold w-100 btn-lg mt-3">
+                            <i class="bi bi-shield-check me-1"></i> Place Order
+                        </button>
+                        <p class="text-center small text-muted mt-3 mb-0">
+                            <i class="bi bi-lock me-1"></i> Secure checkout — your information is safe
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>

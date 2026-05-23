@@ -1,0 +1,158 @@
+<%# Admin Order Detail — status update triggers Observer Pattern %>
+
+<a href="/admin/orders" class="text-muted small text-decoration-none mb-3 d-inline-block">
+    <i class="bi bi-arrow-left me-1"></i> Back to Orders
+</a>
+
+<div class="row g-4">
+    <!-- ===== Items + Customer ===== -->
+    <div class="col-lg-8">
+        <div class="admin-card">
+            <h6 class="admin-card-title">Order Items</h6>
+            <table class="admin-table">
+                <thead>
+                    <tr><th>Product</th><th>Customizations</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+                </thead>
+                <tbody>
+                    <% items.forEach(i => { %>
+                        <tr>
+                            <td><div class="fw-500"><%= i.name %></div></td>
+                            <td>
+                                <% if (i.customizations) { try { const c = JSON.parse(i.customizations); %>
+                                    <% if (c.giftWrap) { %><div class="small text-muted">Gift Wrap: <%= c.giftWrap %></div><% } %>
+                                    <% if (c.engraving) { %><div class="small text-muted">Engraving: "<%= c.engraving %>"</div><% } %>
+                                    <% if (c.premiumBox) { %><div class="small text-muted">Premium Box</div><% } %>
+                                    <% if (c.express) { %><div class="small text-muted">Express Delivery</div><% } %>
+                                <% } catch(e) {} } %>
+                            </td>
+                            <td><%= i.quantity %></td>
+                            <td>Rs. <%= i.price.toLocaleString('en-PK') %></td>
+                            <td class="fw-600">Rs. <%= (i.price * i.quantity).toLocaleString('en-PK') %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-card mt-4">
+            <h6 class="admin-card-title">Customer Details</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="text-muted small">Name</div>
+                    <div class="fw-500"><%= customer ? customer.name : 'Unknown' %></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small">Email</div>
+                    <div class="fw-500"><%= customer ? customer.email : '—' %></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small">Phone</div>
+                    <div class="fw-500"><%= order.phone %></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small">City</div>
+                    <div class="fw-500"><%= order.city %></div>
+                </div>
+                <div class="col-12">
+                    <div class="text-muted small">Shipping Address</div>
+                    <div class="fw-500"><%= order.address %></div>
+                </div>
+                <% if (order.notes) { %>
+                    <div class="col-12">
+                        <div class="text-muted small">Order Notes</div>
+                        <div class="fst-italic"><%= order.notes %></div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Summary + Status Update ===== -->
+    <div class="col-lg-4">
+        <div class="admin-card">
+            <h6 class="admin-card-title">Order #<%= order.id %></h6>
+            <div class="text-muted small mb-3"><%= new Date(order.created_at).toLocaleString('en-GB') %></div>
+
+            <div class="d-flex justify-content-between py-1"><span class="text-muted">Subtotal</span><span>Rs. <%= order.subtotal.toLocaleString('en-PK') %></span></div>
+            <% if (order.discount > 0) { %>
+                <div class="d-flex justify-content-between py-1 text-success"><span>Discount<% if (order.coupon) { %> (<%= order.coupon %>)<% } %></span><span>− Rs. <%= order.discount.toLocaleString('en-PK') %></span></div>
+            <% } %>
+            <div class="d-flex justify-content-between py-1"><span class="text-muted">Shipping</span><span><%= order.shipping === 0 ? 'FREE' : 'Rs. ' + order.shipping.toLocaleString('en-PK') %></span></div>
+            <div class="d-flex justify-content-between py-1"><span class="text-muted">Tax</span><span>Rs. <%= order.tax.toLocaleString('en-PK') %></span></div>
+            <hr>
+            <div class="d-flex justify-content-between fw-bold fs-5"><span>Total</span><span>Rs. <%= order.total.toLocaleString('en-PK') %></span></div>
+
+            <div class="mt-3 pt-3 border-top">
+                <div class="d-flex justify-content-between small text-muted"><span>Payment Method</span><span><%= order.payment_method %></span></div>
+                <div class="d-flex justify-content-between small text-muted"><span>Payment Status</span>
+                    <% if (order.payment_status === 'verified') { %><span class="badge bg-success">Verified</span>
+                    <% } else if (order.payment_status === 'submitted') { %><span class="badge bg-warning text-dark">Pending Review</span>
+                    <% } else if (order.payment_status === 'cod-pending') { %><span class="badge bg-info">COD (collect on delivery)</span>
+                    <% } else if (order.payment_status === 'rejected') { %><span class="badge bg-danger">Rejected</span>
+                    <% } else { %><span class="badge bg-secondary"><%= order.payment_status || 'pending' %></span><% } %>
+                </div>
+                <div class="d-flex justify-content-between small text-muted"><span>Current Status</span><span class="status-badge status-<%= order.status.toLowerCase() %>"><%= order.status %></span></div>
+                <% if (order.tracking_number) { %>
+                    <div class="d-flex justify-content-between small text-muted"><span>PostEx Tracking</span><span class="font-monospace"><%= order.tracking_number %></span></div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- ===== Payment Verification (for bank/jazzcash with submitted proof) ===== -->
+        <% if (order.payment_proof && order.payment_status === 'submitted') { %>
+            <div class="admin-card mt-4">
+                <h6 class="admin-card-title">
+                    <i class="bi bi-shield-check text-warning me-1"></i> Verify Payment
+                </h6>
+                <p class="text-muted small">Review the customer's payment proof and either approve or reject.</p>
+                <div class="text-center mb-3">
+                    <a href="<%= order.payment_proof %>" target="_blank">
+                        <% if (/\.pdf$/i.test(order.payment_proof)) { %>
+                            <i class="bi bi-file-earmark-pdf" style="font-size:3rem;"></i><br>
+                            <span class="small">View PDF Proof</span>
+                        <% } else { %>
+                            <img src="<%= order.payment_proof %>" alt="Payment proof" style="max-width:100%;max-height:300px;border:1px solid #e8dfd1;border-radius:6px;">
+                        <% } %>
+                    </a>
+                </div>
+                <form action="/admin/orders/<%= order.id %>/verify-payment" method="POST" class="d-flex gap-2">
+                    <button type="submit" name="action" value="approve" class="btn btn-admin-gold flex-grow-1">
+                        <i class="bi bi-check-lg me-1"></i> Approve
+                    </button>
+                    <button type="submit" name="action" value="reject" class="btn btn-admin-danger flex-grow-1" onclick="return confirm('Reject this payment? Customer will be asked to re-upload.');">
+                        <i class="bi bi-x-lg me-1"></i> Reject
+                    </button>
+                </form>
+            </div>
+        <% } else if (order.payment_proof && order.payment_status === 'verified') { %>
+            <div class="admin-card mt-4">
+                <h6 class="admin-card-title"><i class="bi bi-shield-check text-success me-1"></i> Payment Verified</h6>
+                <div class="text-center">
+                    <a href="<%= order.payment_proof %>" target="_blank">
+                        <img src="<%= order.payment_proof %>" alt="Payment proof" style="max-width:100%;max-height:200px;border-radius:6px;">
+                    </a>
+                </div>
+            </div>
+        <% } %>
+
+        <div class="admin-card mt-4">
+            <h6 class="admin-card-title">
+                Update Status
+                <small class="text-muted fst-italic d-block mt-1" style="font-size:0.75rem;">⚡ Triggers Observer Pattern</small>
+            </h6>
+            <form action="/admin/orders/<%= order.id %>/status" method="POST">
+                <select name="status" class="form-select mb-3">
+                    <% ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].forEach(s => { %>
+                        <option value="<%= s %>" <%= order.status === s ? 'selected' : '' %>><%= s %></option>
+                    <% }) %>
+                </select>
+                <button type="submit" class="btn btn-admin-gold w-100">
+                    <i class="bi bi-broadcast me-1"></i> Update & Notify
+                </button>
+            </form>
+            <p class="text-muted small mt-3 mb-0">
+                Updating the status will trigger 4 observers: EmailNotifier, SMSNotifier, AdminDashboardNotifier, and InventoryUpdater.
+            </p>
+        </div>
+    </div>
+</div>

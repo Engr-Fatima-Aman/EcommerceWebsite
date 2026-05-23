@@ -1,0 +1,236 @@
+<%# ============================================================
+   Design Patterns Documentation Page
+   THIS IS THE KEY PAGE FOR LAB EVALUATION & VIVA
+   ============================================================ %>
+
+<div class="welcome-strip">
+    <div>
+        <h4 class="mb-1">Software Design & Architecture</h4>
+        <p class="text-muted small mb-0">Architecture style and design patterns used to build RIWAQ.</p>
+    </div>
+    <div class="d-none d-md-block">
+        <i class="bi bi-diagram-3 text-gold display-5"></i>
+    </div>
+</div>
+
+<!-- ============ ARCHITECTURE STYLE ============ -->
+<div class="admin-card mb-4">
+    <h5 class="admin-card-title">
+        <i class="bi bi-bricks me-2"></i> Architecture Style: MVC (Model–View–Controller)
+    </h5>
+    <p>RIWAQ follows the classic MVC architecture. Each layer has a single, clear responsibility — making the codebase modular, testable, and easy to navigate.</p>
+    <div class="row g-3 mt-2">
+        <div class="col-md-4">
+            <div class="arch-tile">
+                <div class="arch-tile-icon"><i class="bi bi-database"></i></div>
+                <h6>Model (M)</h6>
+                <p class="small text-muted mb-1">Data + business rules. Implemented via the Repository Pattern.</p>
+                <code class="small">/patterns/repository/</code>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="arch-tile">
+                <div class="arch-tile-icon"><i class="bi bi-window"></i></div>
+                <h6>View (V)</h6>
+                <p class="small text-muted mb-1">EJS templates that render the UI for both customer and admin sides.</p>
+                <code class="small">/views/customer/, /views/admin/</code>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="arch-tile">
+                <div class="arch-tile-icon"><i class="bi bi-cpu"></i></div>
+                <h6>Controller (C)</h6>
+                <p class="small text-muted mb-1">Receives HTTP requests, orchestrates Models, and chooses which View to render.</p>
+                <code class="small">/controllers/</code>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ DESIGN PATTERNS ============ -->
+<h4 class="mb-3 mt-5">
+    <i class="bi bi-puzzle me-2 text-gold"></i> Design Patterns Implemented
+</h4>
+
+<!-- 1. SINGLETON -->
+<div class="pattern-card">
+    <div class="pattern-header">
+        <span class="pattern-type">1. Singleton</span>
+        <span class="badge bg-light text-dark">Creational</span>
+    </div>
+    <h5>One instance, used everywhere</h5>
+    <p>Ensures a class has only one instance and provides a single global access point. Used for configuration, logging, and the database connection — components that should never have duplicate instances.</p>
+    <div class="pattern-classes">
+        <strong class="d-block mb-2">Concrete classes:</strong>
+        <ul>
+            <li><code>ConfigManager</code> — single source for tax rate, shipping fees, currency, etc.</li>
+            <li><code>Logger</code> — one logger writes to <code>data/app.log</code> for the whole app.</li>
+            <li><code>DatabaseManager</code> — exactly one SQLite connection is opened.</li>
+        </ul>
+    </div>
+    <div class="pattern-files">
+        <i class="bi bi-folder-open me-1"></i> <code>/patterns/singleton/</code>
+    </div>
+</div>
+
+<!-- 2. FACTORY METHOD -->
+<div class="pattern-card">
+    <div class="pattern-header">
+        <span class="pattern-type">2. Factory Method</span>
+        <span class="badge bg-light text-dark">Creational</span>
+    </div>
+    <h5>Hide object-creation logic from the caller</h5>
+    <p>The product factory returns the correct subclass (<code>Ring</code>, <code>Necklace</code>, <code>Earring</code>, <code>Bracelet</code>) based on a string type. The payment factory works the same way for payment processors.</p>
+    <div class="pattern-classes">
+        <strong class="d-block mb-2">Concrete classes:</strong>
+        <ul>
+            <li><code>ProductFactory.create(type, data)</code> → returns <code>Ring</code>, <code>Necklace</code>, <code>Earring</code>, or <code>Bracelet</code></li>
+            <li><code>PaymentFactory.create(method, data)</code> → returns <code>CashOnDeliveryProcessor</code>, <code>BankTransferProcessor</code>, <code>MobileWalletProcessor</code>, or <code>CardProcessor</code></li>
+        </ul>
+    </div>
+    <div class="pattern-files">
+        <i class="bi bi-folder-open me-1"></i> <code>/patterns/factory/</code>
+    </div>
+    <div class="pattern-demo">
+        <i class="bi bi-eye me-1"></i> <strong>Live demo:</strong> Place an order — the payment method dropdown is built from the factory's <code>getAvailableMethods()</code>.
+    </div>
+</div>
+
+<!-- 3. OBSERVER -->
+<div class="pattern-card">
+    <div class="pattern-header">
+        <span class="pattern-type">3. Observer</span>
+        <span class="badge bg-light text-dark">Behavioural</span>
+    </div>
+    <h5>One change → many automatic reactions</h5>
+    <p>When an order is placed or its status changes, the <code>OrderSubject</code> notifies all attached observers in sequence. Each observer performs its own job without the subject knowing the details.</p>
+    <div class="pattern-classes">
+        <strong class="d-block mb-2">Observers attached:</strong>
+        <ul>
+            <li><code>EmailNotifier</code> — sends an email update to the customer</li>
+            <li><code>SMSNotifier</code> — sends an SMS to the customer's phone</li>
+            <li><code>AdminDashboardNotifier</code> — logs a notification for the admin</li>
+            <li><code>InventoryUpdater</code> — reserves / releases stock based on status</li>
+        </ul>
+    </div>
+    <div class="pattern-files">
+        <i class="bi bi-folder-open me-1"></i> <code>/patterns/observer/OrderObservers.js</code>
+    </div>
+    <div class="pattern-demo">
+        <i class="bi bi-eye me-1"></i> <strong>Live demo:</strong> After placing any order, the confirmation page lists every observer that fired. Updating an order's status in <a href="/admin/orders">Admin → Orders</a> fires them again.
+    </div>
+</div>
+
+<!-- 4. STRATEGY -->
+<div class="pattern-card">
+    <div class="pattern-header">
+        <span class="pattern-type">4. Strategy</span>
+        <span class="badge bg-light text-dark">Behavioural</span>
+    </div>
+    <h5>Interchangeable algorithms at runtime</h5>
+    <p>Discount rules are encapsulated as separate strategy classes. The same <code>DiscountContext</code> can apply any of them depending on the coupon used — no <code>if/else</code> in the cart or order code.</p>
+    <div class="pattern-classes">
+        <strong class="d-block mb-2">Strategies available:</strong>
+        <ul>
+            <li><code>NoDiscountStrategy</code> — default, no discount</li>
+            <li><code>PercentageDiscountStrategy</code> — e.g. <code>EID10</code> (10% off), <code>NEWYEAR20</code> (20% off)</li>
+            <li><code>FixedDiscountStrategy</code> — e.g. <code>WELCOME500</code> (Rs. 500 off on min Rs. 3000)</li>
+            <li><code>BuyOneGetOneStrategy</code> — code <code>BOGO</code> on cart with multiple items</li>
+        </ul>
+    </div>
+    <div class="pattern-files">
+        <i class="bi bi-folder-open me-1"></i> <code>/patterns/strategy/DiscountStrategy.js</code>
+    </div>
+    <div class="pattern-demo">
+        <i class="bi bi-eye me-1"></i> <strong>Live demo:</strong> Add items to <a href="/cart">cart</a> and try any of the coupons above.
+    </div>
+</div>
+
+<!-- 5. DECORATOR -->
+<div class="pattern-card">
+    <div class="pattern-header">
+        <span class="pattern-type">5. Decorator</span>
+        <span class="badge bg-light text-dark">Structural</span>
+    </div>
+    <h5>Add features at runtime without subclassing</h5>
+    <p>Customers can attach gift wrap, engraving, premium packaging, or express delivery to any product. Each decorator wraps the original product and adds its own cost — avoiding a class explosion like "GiftWrappedEngravedRing".</p>
+    <div class="pattern-classes">
+        <strong class="d-block mb-2">Decorators stackable in any order:</strong>
+        <ul>
+            <li><code>GiftWrapDecorator</code> — + Rs. 300 (Maroon / Gold / Ivory)</li>
+            <li><code>EngravingDecorator</code> — + Rs. 800 (free text up to 20 chars)</li>
+            <li><code>PremiumPackagingDecorator</code> — + Rs. 500</li>
+            <li><code>ExpressDeliveryDecorator</code> — + Rs. 600</li>
+        </ul>
+    </div>
+    <div class="pattern-files">
+        <i class="bi bi-folder-open me-1"></i> <code>/patterns/decorator/ProductDecorator.js</code>
+    </div>
+    <div class="pattern-demo">
+        <i class="bi bi-eye me-1"></i> <strong>Live demo:</strong> Open any <a href="/shop">product page</a> — the customization form generates a decorator stack that recalculates the line price.
+    </div>
+</div>
+
+<!-- 6. REPOSITORY -->
+<div class="pattern-card">
+    <div class="pattern-header">
+        <span class="pattern-type">6. Repository</span>
+        <span class="badge bg-light text-dark">Architectural</span>
+    </div>
+    <h5>Abstract all database access</h5>
+    <p>Controllers never write SQL directly. Every SQL query is hidden inside a repository class. This means the storage layer can be swapped (e.g. SQLite → MySQL → MongoDB) without touching the rest of the code.</p>
+    <div class="pattern-classes">
+        <strong class="d-block mb-2">Repositories:</strong>
+        <ul>
+            <li><code>BaseRepository</code> — shared CRUD: <code>findAll</code>, <code>findById</code>, <code>findWhere</code>, <code>create</code>, <code>update</code>, <code>delete</code>, <code>count</code></li>
+            <li><code>ProductRepository</code> — adds filters, stock management, distinct values</li>
+            <li><code>UserRepository</code> — finds by email, separates customers from admins</li>
+            <li><code>OrderRepository</code> — order + items, stats, revenue</li>
+            <li><code>CategoryRepository</code> — categories with product counts</li>
+        </ul>
+    </div>
+    <div class="pattern-files">
+        <i class="bi bi-folder-open me-1"></i> <code>/patterns/repository/</code>
+    </div>
+</div>
+
+<!-- ============ ARCHITECTURE SUMMARY TABLE ============ -->
+<div class="admin-card mt-4">
+    <h5 class="admin-card-title">
+        <i class="bi bi-table me-2"></i> Patterns × Modules Summary
+    </h5>
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr><th>Module</th><th>Patterns Used</th><th>Where</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Authentication</strong></td>
+                    <td>Repository, Singleton (Logger)</td>
+                    <td><code>controllers/authController.js</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Product Browsing</strong></td>
+                    <td>Factory Method, Repository</td>
+                    <td><code>controllers/productController.js</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Cart</strong></td>
+                    <td>Decorator, Strategy, Singleton (Config), Factory</td>
+                    <td><code>controllers/cartController.js</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Checkout / Order</strong></td>
+                    <td>Factory (Payment), Strategy, Observer, Repository, Singleton</td>
+                    <td><code>controllers/orderController.js</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Admin Order Status</strong></td>
+                    <td>Observer, Repository, Singleton (Logger)</td>
+                    <td><code>controllers/adminController.js</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

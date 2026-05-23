@@ -1,0 +1,32 @@
+<%# Reusable Product Card — expects `p` (a Product instance from ProductFactory) %>
+<div class="product-card">
+    <div class="product-image-wrap">
+        <a href="/product/<%= p.id %>">
+            <img src="<%= p.image %>" alt="<%= p.name %>" class="product-image">
+        </a>
+        <% if (p.featured) { %>
+            <span class="product-badge">Featured</span>
+        <% } %>
+        <% if (p.stock < 5 && p.stock > 0) { %>
+            <span class="product-badge badge-low">Only <%= p.stock %> left</span>
+        <% } %>
+        <div class="product-actions">
+            <% if (user) { %>
+                <form action="/wishlist/toggle" method="POST" class="d-inline">
+                    <input type="hidden" name="product_id" value="<%= p.id %>">
+                    <button type="submit" class="product-action-btn" title="Wishlist"><i class="bi bi-heart"></i></button>
+                </form>
+            <% } else { %>
+                <a href="/login" class="product-action-btn" title="Login to wishlist"><i class="bi bi-heart"></i></a>
+            <% } %>
+            <a href="/product/<%= p.id %>" class="product-action-btn" title="Quick view"><i class="bi bi-eye"></i></a>
+        </div>
+    </div>
+    <div class="product-info">
+        <p class="product-type"><%= p.type %> · <%= p.material %></p>
+        <a href="/product/<%= p.id %>" class="text-decoration-none">
+            <h5 class="product-name"><%= p.name %></h5>
+        </a>
+        <div class="product-price">Rs. <%= p.price.toLocaleString('en-PK') %></div>
+    </div>
+</div>

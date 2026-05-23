@@ -1,0 +1,150 @@
+<%# Product Detail Page %>
+<section class="breadcrumb-section">
+    <div class="container">
+        <nav class="breadcrumb-trail">
+            <a href="/">Home</a> <span class="mx-2">/</span>
+            <a href="/shop">Shop</a> <span class="mx-2">/</span>
+            <a href="/shop?type=<%= product.type %>"><%= product.type %>s</a> <span class="mx-2">/</span>
+            <span><%= product.name %></span>
+        </nav>
+    </div>
+</section>
+
+<section class="section pt-3">
+    <div class="container">
+        <div class="row g-5">
+            <!-- ===== Image ===== -->
+            <div class="col-lg-6">
+                <div class="product-detail-img">
+                    <img src="<%= product.image %>" alt="<%= product.name %>" class="img-fluid">
+                </div>
+            </div>
+
+            <!-- ===== Info + Customizations ===== -->
+            <div class="col-lg-6">
+                <p class="product-type mb-2"><%= product.type %> · <%= product.material %></p>
+                <h1 class="product-detail-title"><%= product.name %></h1>
+
+                <div class="product-detail-price">Rs. <%= product.price.toLocaleString('en-PK') %></div>
+
+                <p class="product-detail-desc"><%= product.description %></p>
+
+                <!-- Factory-supplied product-specific detail line -->
+                <div class="product-spec-card">
+                    <div class="spec-row">
+                        <span class="spec-label">Material</span>
+                        <span class="spec-value"><%= product.material %></span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">Occasion</span>
+                        <span class="spec-value"><%= product.occasion %></span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">Details</span>
+                        <span class="spec-value"><%= typeof product.getDetails === 'function' ? product.getDetails() : product.type %></span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">Availability</span>
+                        <span class="spec-value">
+                            <% if (product.stock > 0) { %>
+                                <span class="text-success"><i class="bi bi-check-circle"></i> In Stock (<%= product.stock %>)</span>
+                            <% } else { %>
+                                <span class="text-danger">Out of Stock</span>
+                            <% } %>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- ===== ADD TO CART FORM (with Decorator customizations) ===== -->
+                <form action="/cart/add" method="POST" class="form-elegant mt-4">
+                    <input type="hidden" name="product_id" value="<%= product.id %>">
+
+                    <h6 class="customize-heading">
+                        <i class="bi bi-stars me-1 text-gold"></i> Customize Your Piece
+                    </h6>
+
+                    <!-- Gift Wrap -->
+                    <div class="customize-option">
+                        <label class="form-label fw-500">Gift Wrap <small class="text-muted">(+ Rs. 300)</small></label>
+                        <select name="giftWrap" class="form-select">
+                            <option value="">— No gift wrap —</option>
+                            <option value="Maroon">Maroon Velvet</option>
+                            <option value="Gold">Gold Satin</option>
+                            <option value="Ivory">Ivory Silk</option>
+                        </select>
+                    </div>
+
+                    <!-- Engraving -->
+                    <div class="customize-option">
+                        <label class="form-label fw-500">Custom Engraving <small class="text-muted">(+ Rs. 800)</small></label>
+                        <input type="text" name="engraving" class="form-control" maxlength="20" placeholder="Up to 20 characters (optional)">
+                    </div>
+
+                    <!-- Premium Box -->
+                    <div class="customize-option customize-toggle">
+                        <input type="checkbox" name="premiumBox" id="opt-premium" class="form-check-input">
+                        <label for="opt-premium" class="customize-toggle-label">
+                            <span class="customize-toggle-name">Premium Velvet Box</span>
+                            <span class="customize-toggle-price">+ Rs. 500</span>
+                        </label>
+                    </div>
+
+                    <!-- Express Delivery -->
+                    <div class="customize-option customize-toggle mb-4">
+                        <input type="checkbox" name="express" id="opt-express" class="form-check-input">
+                        <label for="opt-express" class="customize-toggle-label">
+                            <span class="customize-toggle-name">Express Delivery <small class="text-muted">(2–3 days)</small></span>
+                            <span class="customize-toggle-price">+ Rs. 600</span>
+                        </label>
+                    </div>
+
+                    <!-- Quantity + Add -->
+                    <div class="row g-3 align-items-center mt-3">
+                        <div class="col-4 col-md-3">
+                            <label class="form-label small text-muted">Qty</label>
+                            <input type="number" name="quantity" class="form-control" value="1" min="1" max="<%= product.stock %>">
+                        </div>
+                        <div class="col-8 col-md-9">
+                            <button type="submit" class="btn btn-gold btn-lg w-100" <%= product.stock === 0 ? 'disabled' : '' %>>
+                                <i class="bi bi-bag-plus me-2"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <% if (user) { %>
+                    <form action="/wishlist/toggle" method="POST" class="mt-2">
+                        <input type="hidden" name="product_id" value="<%= product.id %>">
+                        <button type="submit" class="btn btn-outline-gold w-100">
+                            <i class="bi bi-heart me-2"></i> Add to Wishlist
+                        </button>
+                    </form>
+                <% } else { %>
+                    <a href="/login" class="btn btn-outline-gold w-100 mt-2">
+                        <i class="bi bi-heart me-2"></i> Login to Save to Wishlist
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== Related Products ===== -->
+<% if (related && related.length > 0) { %>
+    <section class="section section-cream">
+        <div class="container">
+            <div class="text-center mb-5">
+                <p class="section-eyebrow">You May Also Love</p>
+                <h2 class="section-title">Related Pieces</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="row g-4">
+                <% related.forEach(p => { %>
+                    <div class="col-6 col-md-3">
+                        <%- include('../partials/product-card', { p }) %>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </section>
+<% } %>
